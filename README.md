@@ -17,7 +17,20 @@ poetry install
 poetry shell
 ```
 
-3. Run app
+2. Set database url in .env and activate it
+
+```console
+source .env.example
+```
+
+3. Run migrations
+
+```console
+alembic upgrade head
+```
+
+
+4. Run app
 
 ```console
 python -m custody
