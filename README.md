@@ -17,20 +17,25 @@ poetry install
 poetry shell
 ```
 
-2. Set database url in .env and activate it
+3. Setup pre-commit git hooks to automate code quality check
+
+```console
+poetry run pre-commit install
+```
+
+4. Set database url in .env and activate it
 
 ```console
 source .env.example
 ```
 
-3. Run migrations
+5. Run migrations
 
 ```console
 alembic upgrade head
 ```
 
-
-4. Run app
+6. Run app
 
 ```console
 python -m custody
