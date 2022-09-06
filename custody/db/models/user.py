@@ -3,6 +3,7 @@ from sqlalchemy.orm import relationship
 
 from custody.db.base_class import Base
 
+
 class User(Base):
     __tablename__ = "users"
 
@@ -11,7 +12,6 @@ class User(Base):
     email = Column(String)
     api_key = Column(String)
     content = relationship("Content", back_populates="owner")
-
 
     created_at = Column(TIMESTAMP, nullable=False, server_default=func.now())
     updated_at = Column(

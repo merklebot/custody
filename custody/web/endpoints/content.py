@@ -28,19 +28,36 @@ async def get_content(content_id: int, user: User = Depends(dependencies.get_cur
 
 @router.post('/{content_id}/methods/prepare_encryption')
 async def prepare_content_encryption(content_id: int, user: User = Depends(dependencies.get_current_user),
-                      db: Session = Depends(dependencies.get_db)):
+                                     db: Session = Depends(dependencies.get_db)):
     storage_manager = StorageManager(user, db)
     content = storage_manager.get_content(content_id)
     storage_manager.prepare_content_encryption(content)
     return {'result': 'ok'}
 
 
+@router.post('/{content_id}/methods/process_encryption')
+async def process_content_encryption(content_id: int, user: User = Depends(dependencies.get_current_user),
+                                     db: Session = Depends(dependencies.get_db)):
+    storage_manager = StorageManager(user, db)
+    content = storage_manager.get_content(content_id)
+    storage_manager.process_encryption(content)
+    return {'result': 'ok'}
+
+
+@router.post('/{content_id}/methods/process_decryption')
+async def process_content_decryption(content_id: int, user: User = Depends(dependencies.get_current_user),
+                                     db: Session = Depends(dependencies.get_db)):
+    storage_manager = StorageManager(user, db)
+    content = storage_manager.get_content(content_id)
+    storage_manager.process_decryption(content)
+    return {'result': 'ok'}
+
 
 @router.post('/')
 async def add_content(new_content: NewContent, user: User = Depends(dependencies.get_current_user),
                       db: Session = Depends(dependencies.get_db)):
     storage_manager = StorageManager(user, db)
-    content = storage_manager.add_content(new_content.original_cid)
+    content = storage_manager.add_content(new_content.original_cid, new_content.name)
     return {
         'original_cid': content.original_cid
     }

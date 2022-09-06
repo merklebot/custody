@@ -12,6 +12,8 @@ class Key(Base):
     content_id = Column(Integer, ForeignKey('content.id'), nullable=False)
     content = relationship("Content", backref=backref("key", uselist=False))
 
+    aes_key = Column(LargeBinary)
+
     kind = Column(String, nullable=False)
     secret_id = Column(Integer, ForeignKey('secrets.id'))
     secret = relationship("Secret")
@@ -22,4 +24,3 @@ class Secret(Base):
     __tablename__ = "secrets"
     id = Column(Integer, primary_key=True, index=True)
     data = Column(LargeBinary, nullable=False)
-

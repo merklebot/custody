@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends
 from custody.web.schemas.user import NewUser
 from custody.web import dependencies
 
