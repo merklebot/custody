@@ -6,7 +6,7 @@ services:
     networks:
       - internal
     environment:
-      - DATABASE_URL:/database_url
+      DATABASE_URL: /database_url
     configs:
       - database_url
     deploy:
