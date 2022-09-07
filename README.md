@@ -51,13 +51,11 @@ docker compose up
 
 ## Deploy
 
-1. Create docker config for each environment variable required in `.env.example`
+1. Load environment variables
 
 ```console
-echo "myvalue" | docker config create myenvvariable -
+export $(cat .env | xargs)
 ```
-
-Also ensure each of them mentioned in `config` and `environment` sections in a service definition in `docker-compose.prod.yml`
 
 2. Deploy stack to Docker Swarm cluster
 

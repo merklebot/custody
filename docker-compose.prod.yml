@@ -6,17 +6,13 @@ services:
     networks:
       - internal
     environment:
-      DATABASE_URL: /database_url
+      DATABASE_URL:
     configs:
       - database_url
     deploy:
       labels:
         - traefik.http.routers.custody.rule=PathPrefix(`/custody`)
         - traefik.http.services.custody.loadbalancer.server.port=8000
-
-configs:
-  database_url:
-    external: true
 
 networks:
   internal:
