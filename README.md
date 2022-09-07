@@ -27,7 +27,6 @@ poetry run pre-commit install
 
 ```console
 cp .env.example
-source .env
 ```
 
 5. Run migrations
