@@ -1,0 +1,35 @@
+# Ansible playbook
+- name: Deploy to Docker Swarm cluster
+  hosts: docker_swarm_manager
+  gather_facts: false
+  tasks:
+    - block:
+        - name: Create temporary directory
+          tempfile:
+            state: directory
+          register: tempdir
+
+        - name: Upload compose and environment file
+          copy:
+            src: "{{ item }}"
+            dest: "{{ tempdir.path }}"
+          loop:
+            - .env
+            - docker-compose.yml
+            - docker-compose.prod.yml
+
+        - name: Deploy
+          shell: |
+            export $(cat .env | xargs)
+            docker stack deploy \
+              -c docker-compose.yml \
+              -c docker-compose.prod.yml \
+              custody
+          args:
+            chdir: "{{ tempdir.path }}"
+
+      always:
+        - name: Remove temporary files
+          file:
+            path: "{{ tempdir.path }}"
+            state: absent

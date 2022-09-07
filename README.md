@@ -51,6 +51,8 @@ docker compose up
 
 ## Deploy
 
+### With Docker CLI
+
 1. Load environment variables
 
 ```console
@@ -61,4 +63,10 @@ export $(cat .env | xargs)
 
 ```console
 docker stack deploy -c docker-compose.yml -c docker-compose.prod.yml <stack_name>
+```
+
+### With Ansible
+
+```console
+ANSIBLE_CONFIG=/path/to/ansible.cfg ansible-playbook -i /path/to/hosts.yml deploy.yml
 ```
