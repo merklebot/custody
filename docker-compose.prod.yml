@@ -1,0 +1,23 @@
+version: "3.8"
+
+services:
+  custody:
+    image: ghcr.io/merklebot/custody:main
+    networks:
+      - internal
+    environment:
+      - DATABASE_URL:/database_url
+    configs:
+      - database_url
+    deploy:
+      labels:
+        - traefik.http.routers.custody.rule=PathPrefix(`/custody`)
+        - traefik.http.services.custody.loadbalancer.server.port=8000
+
+configs:
+  database_url:
+    external: true
+
+networks:
+  internal:
+    external: true # externally created

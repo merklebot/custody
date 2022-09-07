@@ -23,10 +23,11 @@ poetry shell
 poetry run pre-commit install
 ```
 
-4. Set database url in .env and activate it
+4. Create `.env` and specify arguments
 
 ```console
-source .env.example
+cp .env.example
+source .env
 ```
 
 5. Run migrations
@@ -37,6 +38,14 @@ alembic upgrade head
 
 6. Run app
 
+On a localhost
+
 ```console
 python -m custody
+```
+
+Or in a container
+
+```console
+docker compose up
 ```
