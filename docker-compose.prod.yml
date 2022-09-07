@@ -7,8 +7,6 @@ services:
       - internal
     environment:
       DATABASE_URL:
-    configs:
-      - database_url
     deploy:
       labels:
         - traefik.http.routers.custody.rule=PathPrefix(`/custody`)
