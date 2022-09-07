@@ -21,9 +21,11 @@ jobs:
           clean: false
 
       - name: Create .env file
+        env:
+          ENV: ${{ secrets.ENV }}
         run: |
           touch .env
-          echo ${{ secrets.ENV }} > .env
+          echo "$ENV" > .env
 
       - name: Run playbook
         uses: dawidd6/action-ansible-playbook@v2
