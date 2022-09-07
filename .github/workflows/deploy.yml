@@ -1,0 +1,36 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Checkout infra for inventory file
+        uses: actions/checkout@v3
+        with:
+          path: infra
+          repository: merklebot/infra
+          token: ${{ secrets.GH_PAT }}
+          clean: false
+
+      - name: Create .env file
+        run: |
+          touch .env
+          echo ${{ secrets.ENV }} > .env
+
+      - name: Run playbook
+        uses: dawidd6/action-ansible-playbook@v2
+        with:
+          playbook: deploy.yml
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          options: |
+            --inventory infra/ansible/hosts.yml
+        env:
+          ANSIBLE_CONFIG: infra/ansible/ansible.cfg
