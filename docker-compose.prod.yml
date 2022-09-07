@@ -11,6 +11,7 @@ services:
       labels:
         - traefik.http.routers.custody.rule=PathPrefix(`/custody`)
         - traefik.http.services.custody.loadbalancer.server.port=8000
+        - traefik.http.middlewares.strip-custody.stripprefix.prefixes=/custody
 
 networks:
   internal:
