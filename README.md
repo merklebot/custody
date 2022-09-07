@@ -49,3 +49,19 @@ Or in a container
 ```console
 docker compose up
 ```
+
+## Deploy
+
+1. Create docker config for each environment variable required in `.env.example`
+
+```console
+echo "myvalue" | docker config create myenvvariable -
+```
+
+Also ensure each of them mentioned in `config` and `environment` sections in a service definition in `docker-compose.prod.yml`
+
+2. Deploy stack to Docker Swarm cluster
+
+```console
+docker stack deploy -c docker-compose.yml -c docker-compose.prod.yml <stack_name>
+```
