@@ -9,7 +9,10 @@ services:
       DATABASE_URL:
     deploy:
       labels:
-        - traefik.http.routers.custody.rule=PathPrefix(`/custody`)
+        - traefik.http.routers.custody.entrypoints=websecure
+        - traefik.http.routers.custody.rule=Host(`2.contabo.merklebot.com`) && PathPrefix(`/custody`)
+        - traefik.http.routers.custody.tls=true
+        - traefik.http.routers.custody.tls.certresolver=letsencrypt
         - traefik.http.services.custody.loadbalancer.server.port=8000
         - traefik.http.middlewares.strip-custody.stripprefix.prefixes=/custody
 
