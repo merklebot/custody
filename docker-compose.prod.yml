@@ -15,6 +15,7 @@ services:
         - traefik.http.routers.custody.tls.certresolver=letsencrypt
         - traefik.http.services.custody.loadbalancer.server.port=8000
         - traefik.http.middlewares.strip-custody.stripprefix.prefixes=/custody
+        - traefik.http.routers.custody.middlewares=strip-custody@docker
 
 networks:
   internal:
