@@ -10,7 +10,7 @@ services:
     deploy:
       labels:
         - traefik.http.routers.custody.entrypoints=websecure
-        - traefik.http.routers.custody.rule=Host(`2.contabo.merklebot.com`) && PathPrefix(`/custody`)
+        - traefik.http.routers.custody.rule=Host(`api2.merklebot.com`) && PathPrefix(`/custody`)
         - traefik.http.routers.custody.tls=true
         - traefik.http.routers.custody.tls.certresolver=letsencrypt
         - traefik.http.services.custody.loadbalancer.server.port=8000
