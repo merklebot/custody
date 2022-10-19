@@ -8,7 +8,7 @@ services:
     env_file: .env
 
   ipfs:
-    image: ipfs/go-ipfs:v0.4.23
+    image: ipfs/go-ipfs:v0.7.0
     environment:
       - IPFS_PROFILE=server
       - IPFS_PATH=/ipfsdata

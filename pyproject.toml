@@ -16,6 +16,8 @@ psycopg2-binary = "^2.9.3"
 rsa = "^4.9"
 ipfshttpclient = "^0.7.0"
 pycryptodome = "^3.15.0"
+substrate-interface = "^1.2.9"
+aioipfs = "^0.5.8"
 
 
 [tool.poetry.dev-dependencies]

@@ -5,8 +5,20 @@ class DBSettings(BaseSettings):
     DATABASE_URL: str = Field(..., env="DATABASE_URL")
 
 
+class IPFSSettings(BaseSettings):
+    ORIGINAL_IPFS_NODE_ADDRESS = Field(
+        default="/ip4/127.0.0.1/tcp/5001", env="IPFS_ADDRESS"
+    )
+
+
+class WEB3Settings(BaseSettings):
+    CRUST_MNEMONIC: str = Field(..., env="CRUST_MNEMONIC")
+
+
 class Settings(BaseSettings):
     DB: DBSettings = DBSettings()
+    WEB3: WEB3Settings = WEB3Settings()
+    IPFS: IPFSSettings = IPFSSettings()
 
 
 settings = Settings()
