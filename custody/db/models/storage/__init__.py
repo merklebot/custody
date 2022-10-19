@@ -1,1 +1,1 @@
-from .content import *
+from .content import *  # noqa
