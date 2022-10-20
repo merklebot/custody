@@ -10,3 +10,11 @@ class NewContent(BaseModel):
 
 class PrepareEncryption(BaseModel):
     key_id: Optional[int]
+
+
+class ProcessEncryption(BaseModel):
+    webhook_url: Optional[str]
+
+
+class ProcessDecryption(BaseModel):
+    webhook_url: Optional[str]
