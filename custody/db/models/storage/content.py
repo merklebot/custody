@@ -8,7 +8,7 @@ from sqlalchemy import (
     String,
     func,
 )
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import backref, relationship
 
 from custody.db.base_class import Base
 
@@ -25,6 +25,9 @@ class Content(Base):
     is_on_crust = Column(Boolean, nullable=True)
     owner = relationship("User", back_populates="content")
     owner_id = Column(Integer, ForeignKey("users.id"))
+
+    key_id = Column(Integer, ForeignKey("keys.id"), nullable=True)
+    key = relationship("Key", backref=backref("key", uselist=False))
 
     status = Column(String, index=True)
 

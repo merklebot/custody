@@ -2,11 +2,12 @@ from fastapi import APIRouter, BackgroundTasks, Depends
 from sqlalchemy.orm import Session
 from starlette.responses import StreamingResponse
 
+from custody.db.models.storage.key import Key
 from custody.db.models.user import User
 from custody.db.session import SessionLocal
 from custody.services.storage import StorageManager
 from custody.web import dependencies
-from custody.web.schemas.content import NewContent
+from custody.web.schemas.content import NewContent, PrepareEncryption
 
 router = APIRouter()
 
@@ -34,12 +35,17 @@ async def get_content(
 @router.post("/{content_id}/methods/prepare_encryption")
 async def prepare_content_encryption(
     content_id: int,
+    prepare_encryption_req: PrepareEncryption,
     user: User = Depends(dependencies.get_current_user),
     db: Session = Depends(dependencies.get_db),
 ):
+    key_id = prepare_encryption_req.key_id
+    key = None
+    if key_id:
+        key = db.query(Key).filter(Key.id == key_id).first()
     storage_manager = StorageManager(user, db)
     content = storage_manager.get_content(content_id)
-    await storage_manager.prepare_content_encryption(content)
+    await storage_manager.prepare_content_encryption(content, key)
     return {"result": "ok"}
 
 

@@ -42,17 +42,19 @@ class StorageManager:
     def list_content(self) -> List[Content]:
         return self.db.query(Content).filter(Content.owner_id == self.user.id).all()
 
-    async def prepare_content_encryption(self, content: Content):
-        rsa_key = RSA.generate(2048)
-        cipher_rsa = PKCS1_OAEP.new(rsa_key)
-        secret_data = rsa_key.export_key()
-        session_key = get_random_bytes(16)
-        enc_session_key = cipher_rsa.encrypt(session_key)
+    async def prepare_content_encryption(self, content: Content, key: Key = None):
+        if not key:
+            rsa_key = RSA.generate(2048)
+            cipher_rsa = PKCS1_OAEP.new(rsa_key)
+            secret_data = rsa_key.export_key()
+            session_key = get_random_bytes(16)
+            enc_session_key = cipher_rsa.encrypt(session_key)
 
-        secret = Secret(data=secret_data)
-        key = Key(kind="rsa", content=content, aes_key=enc_session_key, secret=secret)
-        self.db.add(secret)
-        self.db.add(key)
+            secret = Secret(data=secret_data)
+            key = Key(kind="rsa", aes_key=enc_session_key, secret=secret)
+            self.db.add(secret)
+            self.db.add(key)
+        content.key = key
         self.db.commit()
 
     async def process_encryption(self, content: Content):
@@ -116,9 +118,7 @@ class StorageManager:
             print("content decrypted")
             with open(file_path, "wb") as f:
                 f.write(data)
-            original_cid = [entry["Hash"] async for entry in client.add(content.name)][
-                0
-            ]
+            original_cid = [entry["Hash"] async for entry in client.add(file_path)][0]
             os.remove(file_path)
             print(f"content {original_cid} decryption finished")
 
