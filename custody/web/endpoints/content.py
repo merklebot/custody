@@ -1,19 +1,14 @@
+import traceback
+
 import aiohttp
 from fastapi import APIRouter, BackgroundTasks, Depends
 from sqlalchemy.orm import Session
 from starlette.responses import StreamingResponse
 
-from custody.db.models.storage.key import Key
 from custody.db.models.user import User
-from custody.db.session import SessionLocal
 from custody.services.storage import StorageManager
 from custody.web import dependencies
-from custody.web.schemas.content import (
-    NewContent,
-    PrepareEncryption,
-    ProcessDecryption,
-    ProcessEncryption,
-)
+from custody.web.schemas.content import NewContent, ProcessDecryption, ProcessEncryption
 
 router = APIRouter()
 
@@ -38,72 +33,78 @@ async def get_content(
     return content.as_dict()
 
 
-@router.post("/{content_id}/methods/prepare_encryption")
-async def prepare_content_encryption(
-    content_id: int,
-    prepare_encryption_req: PrepareEncryption,
-    user: User = Depends(dependencies.get_current_user),
-    db: Session = Depends(dependencies.get_db),
+async def process_content_encryption_task(
+    db, user, original_cid, aes_key, webhook_url=None
 ):
-    key_id = prepare_encryption_req.key_id
-    key = None
-    if key_id:
-        key = db.query(Key).filter(Key.id == key_id).first()
     storage_manager = StorageManager(user, db)
-    content = storage_manager.get_content(content_id)
-    await storage_manager.prepare_content_encryption(content, key)
-    return {"result": "ok"}
-
-
-async def process_content_encryption_task(user, content_id, webhook_url=None):
-    db = SessionLocal()
-    storage_manager = StorageManager(user, db)
-    content = storage_manager.get_content(content_id)
-    await storage_manager.process_encryption(content)
+    result = None
+    status = "finished"
+    try:
+        result = await storage_manager.process_encryption(original_cid, aes_key)
+        print(result)
+    except Exception:
+        traceback.print_exc()
+        status = "error"
     if webhook_url:
         async with aiohttp.ClientSession() as session:
-            async with session.get(webhook_url) as resp:
+            async with session.post(
+                webhook_url, json={"status": status, "result": result}
+            ) as resp:
                 print(resp)
 
 
-@router.post("/{content_id}/methods/process_encryption")
+async def process_content_decryption_task(
+    db, user, original_cid, aes_key, webhook_url=None
+):
+    storage_manager = StorageManager(user, db)
+    result = None
+    status = "finished"
+    try:
+        result = await storage_manager.process_decryption(original_cid, aes_key)
+        print(result)
+    except Exception:
+        traceback.print_exc()
+        status = "error"
+
+    if webhook_url:
+        async with aiohttp.ClientSession() as session:
+            async with session.post(
+                webhook_url, json={"status": status, "result": result}
+            ) as resp:
+                print(resp)
+
+
+@router.post("/methods/process_encryption")
 async def process_content_encryption(
-    content_id: int,
     process_encryption_req: ProcessEncryption,
     background_tasks: BackgroundTasks,
     user: User = Depends(dependencies.get_current_user),
+    db: Session = Depends(dependencies.get_db),
 ):
     background_tasks.add_task(
         process_content_encryption_task,
+        db,
         user,
-        content_id,
+        process_encryption_req.original_cid,
+        process_encryption_req.aes_key,
         process_encryption_req.webhook_url,
     )
     return {"result": "started"}
 
 
-async def process_content_decryption_task(user, content_id, webhook_url=None):
-    db = SessionLocal()
-    storage_manager = StorageManager(user, db)
-    content = storage_manager.get_content(content_id)
-    await storage_manager.process_decryption(content)
-    if webhook_url:
-        async with aiohttp.ClientSession() as session:
-            async with session.get(webhook_url) as resp:
-                print(resp)
-
-
-@router.post("/{content_id}/methods/process_decryption")
+@router.post("/methods/process_decryption")
 async def process_content_decryption(
-    content_id: int,
     process_decryption_req: ProcessDecryption,
     background_tasks: BackgroundTasks,
     user: User = Depends(dependencies.get_current_user),
+    db: Session = Depends(dependencies.get_db),
 ):
     background_tasks.add_task(
         process_content_decryption_task,
+        db,
         user,
-        content_id,
+        process_decryption_req.original_cid,
+        process_decryption_req.aes_key,
         process_decryption_req.webhook_url,
     )
     return {"result": "started"}

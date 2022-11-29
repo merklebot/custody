@@ -8,11 +8,18 @@ class Key(Base):
     __tablename__ = "keys"
 
     id = Column(Integer, primary_key=True, index=True)
-    aes_key = Column(LargeBinary)
+
+    owner = relationship("User", back_populates="keys")
+    owner_id = Column(Integer, ForeignKey("users.id"))
+
+    aes_key = Column(String, nullable=False)
     kind = Column(String, nullable=False)
     secret_id = Column(Integer, ForeignKey("secrets.id"))
     secret = relationship("Secret")
     created_at = Column(TIMESTAMP, nullable=False, server_default=func.now())
+
+    def as_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
 
 class Secret(Base):

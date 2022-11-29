@@ -12,6 +12,7 @@ class User(Base):
     email = Column(String)
     api_key = Column(String)
     content = relationship("Content", back_populates="owner")
+    keys = relationship("Key", back_populates="owner")
 
     created_at = Column(TIMESTAMP, nullable=False, server_default=func.now())
     updated_at = Column(
