@@ -67,7 +67,7 @@ class StorageManager:
         return key
 
     async def process_encryption(self, original_cid, aes_key):
-        file_path = f"tmp/{uuid.uuid4()}"
+        file_path = f"./tmp/{uuid.uuid4()}"
         file_out = open(file_path, "wb")
 
         key = (
@@ -140,7 +140,7 @@ class StorageManager:
         aes_key_binary = binascii.a2b_base64(key.aes_key)
         session_key = cipher_rsa.decrypt(aes_key_binary)
         async with aioipfs.AsyncIPFS(maddr=original_ipfs_address) as client:
-            file_path = f"tmp/{uuid.uuid4()}"
+            file_path = f"./tmp/{uuid.uuid4()}"
             res = await client.cat(content.encrypted_cid)
             print("content got")
             with open(file_path, "wb") as f:

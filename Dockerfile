@@ -9,4 +9,5 @@ WORKDIR /custody
 COPY --from=requirements-stage /tmp/requirements.txt /custody/requirements.txt
 RUN pip install --no-cache-dir --upgrade -r /custody/requirements.txt
 COPY ./custody /custody/custody
+COPY ./tmp /custody/tmp
 CMD ["python", "-m", "custody"]
