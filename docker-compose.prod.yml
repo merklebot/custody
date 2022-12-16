@@ -5,8 +5,6 @@ services:
     image: ghcr.io/merklebot/custody:main
     networks:
       - internal
-    environment:
-      DATABASE_URL:
     deploy:
       labels:
         - traefik.http.routers.custody.entrypoints=websecure
