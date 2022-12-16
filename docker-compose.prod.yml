@@ -13,6 +13,22 @@ services:
         - traefik.http.routers.custody.tls.certresolver=letsencrypt
         - traefik.http.services.custody.loadbalancer.server.port=8000
 
+  postgres:
+    volumes:
+      - custody_postgres:/var/lib/postgresql/data
+    environment:
+      PGDATA: /var/lib/postgresql/data/pgdata
+    networks:
+      - internal
+    deploy:
+      placement:
+        constraints:
+          - node.labels.postgres == true
+
+volumes:
+  custody_postgres:
+    external: true
+
 networks:
   internal:
     external: true # externally created
