@@ -85,7 +85,7 @@ class StorageManager:
         enc_session_key = aes_key_binary
         cipher_aes = AES.new(session_key, AES.MODE_EAX)
         print("start getting data")
-        async with aioipfs.AsyncIPFS(maddr=original_ipfs_address) as client:
+        async with aioipfs.AsyncIPFS(host=original_ipfs_address, port=5001) as client:
             res = await client.cat(original_cid)
             print("content got")
 
@@ -139,7 +139,7 @@ class StorageManager:
 
         aes_key_binary = binascii.a2b_base64(key.aes_key)
         session_key = cipher_rsa.decrypt(aes_key_binary)
-        async with aioipfs.AsyncIPFS(maddr=original_ipfs_address) as client:
+        async with aioipfs.AsyncIPFS(host=original_ipfs_address, port=5001) as client:
             file_path = f"./tmp/{uuid.uuid4()}"
             res = await client.cat(content.encrypted_cid)
             print("content got")

@@ -6,9 +6,7 @@ class DBSettings(BaseSettings):
 
 
 class IPFSSettings(BaseSettings):
-    ORIGINAL_IPFS_NODE_ADDRESS = Field(
-        default="/ip4/127.0.0.1/tcp/5001", env="IPFS_ADDRESS"
-    )
+    ORIGINAL_IPFS_NODE_ADDRESS = Field(default="localhost", env="IPFS_ADDRESS")
 
 
 class WEB3Settings(BaseSettings):
