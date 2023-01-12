@@ -7,6 +7,9 @@ class DBSettings(BaseSettings):
 
 class IPFSSettings(BaseSettings):
     ORIGINAL_IPFS_NODE_ADDRESS = Field(default="localhost", env="IPFS_ADDRESS")
+    ENCRYPTED_IPFS_NODE_ADDRESS = Field(
+        default="localhost", env="ENCRYPTED_IPFS_ADDRESS"
+    )
 
 
 class WEB3Settings(BaseSettings):

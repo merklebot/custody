@@ -15,6 +15,7 @@ from custody.db.models.storage.key import Key, Secret
 from custody.db.models.user import User
 
 original_ipfs_address = settings.IPFS.ORIGINAL_IPFS_NODE_ADDRESS
+encrypted_ipfs_address = settings.IPFS.ENCRYPTED_IPFS_NODE_ADDRESS
 
 
 class FileEncryptor:
@@ -88,6 +89,8 @@ class StorageManager:
         async with aioipfs.AsyncIPFS(host=original_ipfs_address, port=5001) as client:
             res = await client.cat(original_cid)
             print("content got")
+
+        async with aioipfs.AsyncIPFS(host=encrypted_ipfs_address, port=5001) as client:
 
             ciphertext, tag = cipher_aes.encrypt_and_digest(res)
             [
