@@ -13,7 +13,6 @@ class PrepareEncryption(BaseModel):
 
 
 class ProcessEncryption(BaseModel):
-    aes_key: Optional[str]
     original_cid: Optional[str]
     webhook_url: Optional[str]
 
@@ -22,3 +21,13 @@ class ProcessDecryption(BaseModel):
     aes_key: Optional[str]
     original_cid: Optional[str]
     webhook_url: Optional[str]
+
+
+class Content(BaseModel):
+    ipfs_cid: str
+    ipfs_file_size: int
+
+
+class EncryptContentPack(BaseModel):
+    uuid: str
+    contents: list[Content]

@@ -16,14 +16,16 @@ psycopg2-binary = "^2.9.3"
 rsa = "^4.9"
 ipfshttpclient = "^0.7.0"
 pycryptodome = "^3.15.0"
-substrate-interface = "^1.2.9"
 aioipfs = "^0.5.8"
+hvac = "^1.1.0"
+aioboto3 = "^11.2.0"
+httpx = "^0.24.0"
 
 
 [tool.poetry.dev-dependencies]
 black = "^22.8.0"
 flake8 = "^5.0.4"
-isort = "^5.10.1"
+isort = "5.12.0"
 pylint = "^2.15.0"
 pre-commit = "^2.20.0"
 

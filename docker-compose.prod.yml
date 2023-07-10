@@ -2,33 +2,16 @@ version: "3.8"
 
 services:
   custody:
+    env_file:
+      - .env.prod
     image: ghcr.io/merklebot/custody:main
     networks:
       - internal
-    deploy:
-      labels:
-        - traefik.http.routers.custody.entrypoints=websecure
-        - traefik.http.routers.custody.rule=Host(`custody.api.merklebot.com`)
-        - traefik.http.routers.custody.tls=true
-        - traefik.http.routers.custody.tls.certresolver=letsencrypt
-        - traefik.http.services.custody.loadbalancer.server.port=8000
+      - bridge
 
-  postgres:
-    volumes:
-      - custody_postgres:/var/lib/postgresql/data
-    environment:
-      PGDATA: /var/lib/postgresql/data/pgdata
-    networks:
-      - internal
-    deploy:
-      placement:
-        constraints:
-          - node.labels.postgres == true
-
-volumes:
-  custody_postgres:
-    external: true
 
 networks:
   internal:
     external: true # externally created
+  bridge:
+    external: true

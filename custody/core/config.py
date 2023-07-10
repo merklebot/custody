@@ -1,25 +1,23 @@
 from pydantic import BaseSettings, Field
 
 
-class DBSettings(BaseSettings):
-    DATABASE_URL: str = Field(..., env="DATABASE_URL")
-
-
-class IPFSSettings(BaseSettings):
-    ORIGINAL_IPFS_NODE_ADDRESS = Field(default="localhost", env="IPFS_ADDRESS")
-    ENCRYPTED_IPFS_NODE_ADDRESS = Field(
-        default="localhost", env="ENCRYPTED_IPFS_ADDRESS"
-    )
-
-
-class WEB3Settings(BaseSettings):
-    CRUST_MNEMONIC: str = Field(..., env="CRUST_MNEMONIC")
-
-
 class Settings(BaseSettings):
-    DB: DBSettings = DBSettings()
-    WEB3: WEB3Settings = WEB3Settings()
-    IPFS: IPFSSettings = IPFSSettings()
+    VAULT_ADDRESS = Field(default="http://127.0.0.1:8200", env="VAULT_ADDRESS")
+    VAULT_TOKEN: str
+
+    INSTANT_STORAGE_REGION: str
+    INSTANT_STORAGE_ENDPOINT: str
+    INSTANT_STORAGE_ACCESS_KEY: str
+    INSTANT_STORAGE_SECRET_ACCESS_KEY: str
+    INSTANT_STORAGE_BUCKET_NAME: str
+
+    PUBLIC_STORAGE_REGION: str
+    PUBLIC_STORAGE_ENDPOINT: str
+    PUBLIC_STORAGE_ACCESS_KEY: str
+    PUBLIC_STORAGE_SECRET_ACCESS_KEY: str
+    PUBLIC_STORAGE_BUCKET_NAME: str
+
+    IPFS_HTTP_PROVIDER: str
 
 
 settings = Settings()

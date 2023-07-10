@@ -3,9 +3,9 @@ version: "3.8"
 services:
   custody:
     build: .
-    volumes:
-      - .:/custody
     env_file: .env
+    ports:
+      - "8000:8000"
 
   ipfs:
     image: ipfs/go-ipfs:v0.7.0
