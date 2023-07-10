@@ -47,7 +47,7 @@ def make_car(pack_folder: str, pack_id: str):
     )
     logger.info(f"root_cid {ipfs_car_res}")
 
-    command = ["boost", "commp", f"./tmp/{pack_id}.car"]
+    command = ["boostx", "commp", f"./tmp/{pack_id}.car"]
     logger.info(f"executing command {command}")
     try:
         boost_res = (
