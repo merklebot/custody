@@ -22,9 +22,9 @@ client = hvac.Client(
 
 
 def parse_boost_result(res):
-    comm_p = re.findall(r"[\n\r]*CommP CID:*([^\n\r]*)", res)
-    piece_size = re.findall(r"[\n\r]*Piece size:*([^\n\r]*)", res)
-    car_size = re.findall(r"[\n\r]*Car file size:*([^\n\r]*)", res)
+    comm_p = re.findall(r"[\n\r]*CommP CID:*([^\n\r]*)", res)[0].strip()
+    piece_size = re.findall(r"[\n\r]*Piece size:*([^\n\r]*)", res)[0].strip()
+    car_size = re.findall(r"[\n\r]*Car file size:*([^\n\r]*)", res)[0].strip()
     return comm_p, piece_size, car_size
 
 
