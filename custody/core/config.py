@@ -19,5 +19,8 @@ class Settings(BaseSettings):
 
     IPFS_HTTP_PROVIDER: str
 
+    STORAGE_BACKEND_URL: str
+    STORAGE_ADMIN_TOKEN: str
+
 
 settings = Settings()

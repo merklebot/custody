@@ -13,7 +13,7 @@ from Crypto.PublicKey import RSA
 from Crypto.Random import get_random_bytes
 
 from custody.core.config import settings
-from custody.logging import logger
+from custody.logger import logger
 
 client = hvac.Client(
     url=settings.VAULT_ADDRESS,
@@ -109,8 +109,8 @@ class StorageManager:
         pack_folder = f"./tmp/{pack_uuid}"
         os.mkdir(pack_folder)
         encrypted_contents = []
-        for content in contents:
-            res = await self.process_encryption(content.ipfs_cid, pack_folder)
+        for ipfs_cid in contents:
+            res = await self.process_encryption(ipfs_cid, pack_folder)
             encrypted_contents.append(res)
         logger.info(encrypted_contents)
         root_cid, comm_p, piece_size, car_size = make_car(pack_folder, pack_uuid)
