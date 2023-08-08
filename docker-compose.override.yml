@@ -4,6 +4,8 @@ services:
   custody:
     build: .
     env_file: .env
+    volumes:
+      - ./tmp:/custody/tmp
     ports:
       - "8000:8000"
 
