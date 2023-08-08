@@ -101,7 +101,12 @@ async def upload_car_to_public_storage(pack_uuid):
         aws_secret_access_key=settings.PUBLIC_STORAGE_SECRET_ACCESS_KEY,
     ) as s3:
         with open(path, "rb") as spfp:
-            await s3.upload_fileobj(spfp, settings.PUBLIC_STORAGE_BUCKET_NAME, s3_key)
+            await s3.upload_fileobj(
+                spfp,
+                settings.PUBLIC_STORAGE_BUCKET_NAME,
+                s3_key,
+                ExtraArgs={"ACL": "public-read"},
+            )
 
 
 class StorageManager:
