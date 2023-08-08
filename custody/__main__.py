@@ -21,11 +21,8 @@ async def main():
             result = await storage_manager.process_storage_pack(
                 car["pack_uuid"], car["contents"]
             )
-
-            storage_resp = client.post(
-                settings.STORAGE_BACKEND_URL + "/internal/filecoin.carCreated",
-                headers={"Authorization": settings.STORAGE_ADMIN_TOKEN},
-                data={
+            with httpx.Client() as client:
+                car_result = {
                     "pack_uuid": result["pack_uuid"],
                     "tenant_name": car["tenant_name"],
                     "encrypted_contents": result["encrypted_contents"],
@@ -33,10 +30,15 @@ async def main():
                     "comm_p": result["comm_p"],
                     "piece_size": result["piece_size"],
                     "car_size": result["car_size"],
-                },
-            )
+                }
+                print(car_result)
+                storage_resp = client.post(
+                    settings.STORAGE_BACKEND_URL + "/internal/filecoin.carCreated",
+                    headers={"Authorization": settings.STORAGE_ADMIN_TOKEN},
+                    data=car_result,
+                )
 
-            print(storage_resp.json())
+                print(storage_resp.json())
         time.sleep(5)
 
 
