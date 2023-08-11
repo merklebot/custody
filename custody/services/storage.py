@@ -44,7 +44,7 @@ def make_car(pack_folder: str, pack_id: str):
     logger.info(f"executing command {command}")
     ipfs_car_res = (
         subprocess.check_output(command, stderr=subprocess.STDOUT).decode().strip()
-    )
+    ).split("\n")[0]
     logger.info(f"root_cid {ipfs_car_res}")
 
     command = ["boostx", "commp", f"./tmp/{pack_id}.car"]
