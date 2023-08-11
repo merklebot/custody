@@ -35,7 +35,7 @@ async def main():
                 storage_resp = client.post(
                     settings.STORAGE_BACKEND_URL + "/internal/filecoin.carCreated",
                     headers={"Authorization": settings.STORAGE_ADMIN_TOKEN},
-                    data=car_result,
+                    json=car_result,
                 )
 
                 print(storage_resp.json())
