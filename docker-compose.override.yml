@@ -22,9 +22,9 @@ services:
       - "127.0.0.1:8081:8081"
       - "127.0.0.1:5001:5001"
 
-  logger:
-    image: grafana/grafana:latest
-    logging:
-      driver: loki
-      options:
-        loki-url: "https://${LOKI_USER_ID}:${LOKI_PASSWORD}@logs-prod-006.grafana.net/loki/api/v1/push"
+#  logger:
+#    image: grafana/grafana:latest
+#    logging:
+#      driver: loki
+#      options:
+#        loki-url: "https://${LOKI_USER_ID}:${LOKI_PASSWORD}@logs-prod-006.grafana.net/loki/api/v1/push"
