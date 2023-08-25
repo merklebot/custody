@@ -5,8 +5,9 @@ logger = logging.getLogger("custodyLogger")
 
 logger.setLevel(logging.DEBUG)
 logFormatter = logging.Formatter(
-    "%(name)-12s %(asctime)s %(levelname)-8s "
-    "%(filename)s:%(funcName)s %(action)s %(pack_uuid)s %(message)s"
+    "LOGGER_NAME=%(name)-12s ASCTIME=%(asctime)s LEVEL=%(levelname)-8s "
+    "SOURCE_FUNC=%(filename)s:%(funcName)s ACTION=%(action)s PACK_UUID=%(pack_uuid)s "
+    "MESSAGE=%(message)s"
 )
 consoleHandler = logging.StreamHandler(stdout)
 consoleHandler.setFormatter(logFormatter)
