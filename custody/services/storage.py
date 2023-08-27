@@ -212,4 +212,4 @@ def process_storage_pack(content_pack: ContentPack):
 
     upload_car_to_public_storage(content_pack.pack_uuid)
     os.remove(f"./tmp/{content_pack.pack_uuid}.car")
-    return GeneratedCar.dict()
+    return car.dict()
