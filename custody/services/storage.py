@@ -80,10 +80,12 @@ def make_car(pack_folder: str, pack_uuid: str):
 
 
 def encrypt_file(file_out_path: str, file_input, secret_key):
-    aes = AES.new(secret_key, AES.MODE_CBC)
+    iv = get_random_bytes(16)
+    aes = AES.new(secret_key, AES.MODE_CBC, iv)
     filesize = str(file_input.getbuffer().nbytes).zfill(16)
     with open(file_out_path, "wb") as fout:
         sz = 2048
+        fout.write(iv)
         fout.write(filesize.encode("utf-8"))
         while True:
             data = file_input.read(sz)
@@ -98,9 +100,10 @@ def encrypt_file(file_out_path: str, file_input, secret_key):
 
 
 def decrypt_file(file_out_path: str, file_input, secret_key):
-    aes = AES.new(secret_key, AES.MODE_CBC)
     print(AES.block_size)
     with open(file_out_path, "wb") as fout:
+        iv = file_input.read(16)
+        aes = AES.new(secret_key, AES.MODE_CBC, iv)
         sz = 2048
         filesize = int(file_input.read(16))
         while True:
@@ -112,7 +115,6 @@ def decrypt_file(file_out_path: str, file_input, secret_key):
             fout.write(decrypted_data)
         fout.truncate(filesize)
         file_input.close()
-
 
 def get_encryption_info(original_cid):
     read_response = client.secrets.kv.v2.read_secret_version(path=f"{original_cid}")
