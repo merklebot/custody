@@ -79,8 +79,7 @@ def make_car(pack_folder: str, pack_uuid: str):
     return root_cid, comm_p, piece_size, car_size
 
 
-def encrypt_file(file_out_path: str, file_input, secret_key):
-    iv = get_random_bytes(16)
+def encrypt_file(file_out_path: str, file_input, secret_key, iv):
     aes = AES.new(secret_key, AES.MODE_CBC, iv)
     filesize = str(file_input.getbuffer().nbytes).zfill(16)
     with open(file_out_path, "wb") as fout:
@@ -116,11 +115,13 @@ def decrypt_file(file_out_path: str, file_input, secret_key):
         fout.truncate(filesize)
         file_input.close()
 
+
 def get_encryption_info(original_cid):
     read_response = client.secrets.kv.v2.read_secret_version(path=f"{original_cid}")
+    iv = binascii.a2b_base64(read_response["data"]["data"]["iv"])
     secret_key = binascii.a2b_base64(read_response["data"]["data"]["secret_key"])
     encrypted_cid = read_response["data"]["data"]["encrypted_cid"]
-    return secret_key, encrypted_cid
+    return secret_key, encrypted_cid, iv
 
 
 def process_content_encryption(original_cid, pack_uuid):
@@ -128,9 +129,10 @@ def process_content_encryption(original_cid, pack_uuid):
     file_path = f"./tmp/{pack_uuid}/{original_cid}"
 
     secret_key = get_random_bytes(16)
+    iv = get_random_bytes(16)
     saved_encrypted_cid = None
     try:
-        secret_key, saved_encrypted_cid = get_encryption_info(original_cid)
+        secret_key, saved_encrypted_cid, iv = get_encryption_info(original_cid)
     except Exception:
         pass
 
@@ -139,7 +141,7 @@ def process_content_encryption(original_cid, pack_uuid):
     _file = get_data_from_instant_storage(original_cid)
     logger.info(f"original_cid={original_cid}| downloaded data", extra=logging_extra)
 
-    encrypt_file(file_path, _file, secret_key)
+    encrypt_file(file_path, _file, secret_key, iv)
     logger.info(f"original_cid={original_cid}| encrypted data", extra=logging_extra)
 
     encrypted_cid, encrypted_size = get_ipfs_file_info(file_path)
@@ -164,6 +166,7 @@ def process_content_encryption(original_cid, pack_uuid):
         secret=dict(
             encrypted_cid=encrypted_cid,
             secret_key=binascii.b2a_base64(secret_key).decode("utf-8").strip(),
+            iv=binascii.b2a_base64(iv).decode("utf-8").strip(),
         ),
     )
 
