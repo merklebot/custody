@@ -22,5 +22,7 @@ class Settings(BaseSettings):
     STORAGE_BACKEND_URL: str
     STORAGE_ADMIN_TOKEN: str
 
+    WORKER_INSTANCE: str
+
 
 settings = Settings()

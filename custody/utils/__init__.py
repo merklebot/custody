@@ -40,6 +40,22 @@ def upload_car_to_public_storage(pack_uuid):
         )
 
 
+def upload_file_to_instant_storage(path, cid):
+    client = boto3.client(
+        service_name="s3",
+        region_name=settings.PUBLIC_STORAGE_REGION,
+        endpoint_url=settings.PUBLIC_STORAGE_ENDPOINT,
+        aws_access_key_id=settings.PUBLIC_STORAGE_ACCESS_KEY,
+        aws_secret_access_key=settings.PUBLIC_STORAGE_SECRET_ACCESS_KEY,
+    )
+    with open(path, "rb") as spfp:
+        client.upload_fileobj(
+            spfp,
+            settings.PUBLIC_STORAGE_BUCKET_NAME,
+            cid,
+        )
+
+
 def get_ipfs_file_info(file_path):
     with open(file_path, "rb") as file:
         with httpx.Client(
@@ -59,3 +75,10 @@ def parse_boost_result(res):
     piece_size = int(re.findall(r"[\n\r]*Piece size:*([^\n\r]*)", res)[0].strip())
     car_size = int(re.findall(r"[\n\r]*Car file size:*([^\n\r]*)", res)[0].strip())
     return comm_p, piece_size, car_size
+
+
+def parse_lassie_result(res):
+    duration = re.findall(r"[\n\r]*Duration:*([^\n\r]*)", res)[0].strip()
+    blocks_number = re.findall(r"[\n\r]*Blocks:*([^\n\r]*)", res)[0].strip()
+    size = re.findall(r"[\n\r]*Bytes:*([^\n\r]*)", res)[0].strip()
+    return duration, blocks_number, size

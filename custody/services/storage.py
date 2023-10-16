@@ -4,10 +4,12 @@ import shutil
 import subprocess
 from typing import List
 
+import httpx
 import hvac
 from Crypto.Cipher import AES
 from Crypto.Random import get_random_bytes
 from pydantic import BaseModel
+from tqdm import tqdm
 
 from custody.core.config import settings
 from custody.logger import logger
@@ -15,6 +17,7 @@ from custody.utils import (
     get_data_from_instant_storage,
     get_ipfs_file_info,
     parse_boost_result,
+    parse_lassie_result,
     upload_car_to_public_storage,
 )
 
@@ -43,6 +46,83 @@ class GeneratedCar(BaseModel):
     comm_p: str
     piece_size: int
     car_size: int
+
+
+def lassie_fetch_data(cid, output_filepath):
+    logging_extra = {"action": "FETCHING_FROM_FILECOIN", "cid": cid}
+    logger.info(f"start fetching {cid} from filecoin", extra=logging_extra)
+    command = ["lassie", "fetch", "-o", f"{output_filepath}", f"{cid}"]
+
+    lassie_res = (
+        subprocess.check_output(command, stderr=subprocess.STDOUT).decode().strip()
+    )
+
+    duration, blocks_number, size = parse_lassie_result(lassie_res)
+    logger.info(
+        f"fetched {cid} from filecoin, duration={duration}, size={size}",
+        extra=logging_extra,
+    )
+    return duration, blocks_number, size
+
+
+def extract_content_from_car(car_path, cid, output_path):
+    command = ["npx", "ipfs-car", "unpack", car_path, "-r", cid, "-o", output_path]
+    res = subprocess.check_output(command, stderr=subprocess.STDOUT).decode().strip()
+    print(res)
+
+
+def restore_content(original_cid: str):
+    logging_extra = {"action": "RESTORING_CONTENT", "original_cid": original_cid}
+    secret_key, encrypted_cid, iv = get_encryption_info(original_cid)
+    logger.info("got encryption data", extra=logging_extra)
+    enc_car_filepath = f"tmp/{encrypted_cid}.car"
+    enc_filepath = f"tmp/{encrypted_cid}"
+    original_filepath = f"tmp/{original_cid}"
+
+    try:
+        duration, blocks_number, size = lassie_fetch_data(
+            encrypted_cid, enc_car_filepath
+        )
+        extract_content_from_car(enc_car_filepath, encrypted_cid, enc_filepath)
+        os.remove(enc_car_filepath)
+    except Exception as e:
+        print(e.__traceback__)
+        with open(enc_filepath, "wb") as download_file:
+            url = f"{os.getenv('IPFS_GATEWAY_URL')}/{encrypted_cid}?stream=true"
+            print("fetching from ipfs", url)
+            with httpx.stream("GET", url) as response:
+                total = int(response.headers["Content-Length"])
+
+                with tqdm(
+                    total=total, unit_scale=True, unit_divisor=1024, unit="B"
+                ) as progress:
+                    num_bytes_downloaded = response.num_bytes_downloaded
+                    for chunk in response.iter_bytes():
+                        download_file.write(chunk)
+                        progress.update(
+                            response.num_bytes_downloaded - num_bytes_downloaded
+                        )
+                        num_bytes_downloaded = response.num_bytes_downloaded
+
+    decrypt_file(
+        original_filepath,
+        open(enc_filepath, "rb"),
+        secret_key,
+    )
+    os.remove(enc_filepath)
+    calculated_cid, calculated_size = get_ipfs_file_info(original_filepath)
+    if calculated_cid != original_cid:
+        raise Exception(
+            f"Got calculated_cid={calculated_cid}"
+            f" and original_cid={original_cid} mismatch"
+        )
+
+    logger.info(
+        f"retrieved and decrypted content with original_cid={original_cid},"
+        f" calculated_cid={calculated_cid}",
+        extra=logging_extra,
+    )
+    os.remove(original_filepath)
 
 
 def make_car(pack_folder: str, pack_uuid: str):
@@ -99,19 +179,25 @@ def encrypt_file(file_out_path: str, file_input, secret_key, iv):
 
 
 def decrypt_file(file_out_path: str, file_input, secret_key):
-    print(AES.block_size)
     with open(file_out_path, "wb") as fout:
         iv = file_input.read(16)
         aes = AES.new(secret_key, AES.MODE_CBC, iv)
         sz = 2048
         filesize = int(file_input.read(16))
-        while True:
-            data = file_input.read(sz)
-            n = len(data)
-            if n == 0:
-                break
-            decrypted_data = aes.decrypt(data)
-            fout.write(decrypted_data)
+
+        with tqdm(
+            total=filesize, unit_scale=True, unit_divisor=1024, unit="B"
+        ) as progress:
+            while True:
+                data = file_input.read(sz)
+                n = len(data)
+                if n == 0:
+                    break
+                decrypted_data = aes.decrypt(data)
+                fout.write(decrypted_data)
+
+                progress.update(sz)
+
         fout.truncate(filesize)
         file_input.close()
 

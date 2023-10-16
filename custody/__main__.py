@@ -1,12 +1,13 @@
+import sys
 import time
 
 import httpx
 
 from custody.core.config import settings
-from custody.services.storage import ContentPack, process_storage_pack
+from custody.services.storage import ContentPack, process_storage_pack, restore_content
 
 
-def main():
+def start_content_packs_processing():
     while True:
         with httpx.Client() as client:
             content_pack_resp = client.get(
@@ -34,10 +35,47 @@ def main():
                 )
 
                 print(storage_resp.json())
+
+        time.sleep(5)
+
+
+def start_content_restoring():
+    while True:
+        with httpx.Client() as client:
+            restore_request_resp = client.post(
+                settings.STORAGE_BACKEND_URL + "/internal/filecoin.startRestoreProcess",
+                headers={"Authorization": settings.STORAGE_ADMIN_TOKEN},
+                json={"worker_instance": settings.WORKER_INSTANCE},
+            )
+            restore_request = restore_request_resp.json()
+            print(restore_request)
+            if restore_request:
+                status = "done"
+                try:
+                    restore_content(restore_request["original_cid"])
+                except Exception as e:
+                    print(e.__traceback__)
+                    status = "error"
+                client.post(
+                    settings.STORAGE_BACKEND_URL
+                    + "/internal/filecoin.finishRestoreProcess",
+                    headers={"Authorization": settings.STORAGE_ADMIN_TOKEN},
+                    json={
+                        "worker_instance": settings.WORKER_INSTANCE,
+                        "restore_request_id": restore_request["restore_request_id"],
+                        "status": status,
+                    },
+                )
         time.sleep(5)
 
 
 if __name__ == "__main__":
-    main()
-
-    # uvicorn.run(app, host="0.0.0.0", port=8000)
+    if "restore" in sys.argv:
+        if "--original_cid" in sys.argv:
+            original_cid = sys.argv[3]
+            print("restoring", original_cid)
+            restore_content(original_cid)
+        else:
+            start_content_restoring()
+    else:
+        start_content_packs_processing()
